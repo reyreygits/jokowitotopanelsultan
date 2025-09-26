@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MAXBET4D - Admin Panel</title>
+<title>ARIPTOTO - Admin Panel</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -12,7 +12,7 @@
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyDzikWeuSIoMTCC6wsD64NnX5bLQQvM2dA",
-  authDomain: "AIzaSyDzikWeuSIoMTCC6wsD64NnX5bLQQvM2dA",
+  authDomain: "ariptoto-93af7.firebaseapp.com",
   projectId: "ariptoto-93af7",
   storageBucket: "ariptoto-93af7.appspot.com",
   messagingSenderId: "703805134804",
@@ -23,39 +23,36 @@ const db = firebase.firestore();
 </script>
 
 <style>
-body { font-family: Arial, sans-serif; background: #0a0f1c; color: white; margin: 0; padding: 0; }
-header { background: #111a33; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-.logo { font-size: 24px; font-weight: bold; color: #FFD700; }
-.search-bar { margin: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-.search-bar input { padding: 8px; border-radius: 6px; border: none; width: 300px; font-size: 14px; }
-.search-bar button { padding: 8px 15px; background: #FFD700; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-table { width: 95%; margin: 20px auto; border-collapse: collapse; background: #1a1f33; border-radius: 8px; overflow: hidden; }
-th, td { padding: 10px; text-align: center; border: 1px solid #333; }
-th { background: #222; color: #FFD700; }
-td { background: #2a2a2a; }
-input.editable { width: 120px; padding: 6px; border-radius: 4px; border: none; text-align: center; background: #444; color: white; }
-.btn-action { padding: 6px 10px; margin: 2px; border-radius: 4px; cursor: pointer; border: none; font-weight: bold; }
-.btn-delete { background: #ff4444; color: white; }
-.btn-approve { background: #00cc66; color: white; }
-.btn-reject { background: #ff6666; color: white; }
-h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; padding-left: 10px; }
-.pagination { text-align: center; margin-bottom: 30px; }
-.pagination button { padding: 8px 15px; margin: 5px; border-radius: 6px; background: #FFD700; border: none; color: #000; font-weight: bold; cursor: pointer; }
+body { font-family: Arial, sans-serif; background: #0a0f1c; color: white; margin:0; padding:0; }
+header { background:#111a33; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+.logo { font-size:24px; font-weight:bold; color:#FFD700; }
+table { width:95%; margin:20px auto; border-collapse: collapse; background:#1a1f33; border-radius:8px; overflow:hidden; }
+th, td { padding:10px; text-align:center; border:1px solid #333; }
+th { background:#222; color:#FFD700; }
+td { background:#2a2a2a; }
+input.editable { width:120px; padding:6px; border-radius:4px; border:none; text-align:center; background:#444; color:white; }
+.btn-action { padding:6px 10px; margin:2px; border-radius:4px; cursor:pointer; border:none; font-weight:bold; }
+.btn-delete { background:#ff4444; color:white; }
+.btn-approve { background:#00cc66; color:white; }
+.btn-reject { background:#ff6666; color:white; }
+h2 { margin-left:20px; margin-top:30px; border-left:4px solid #FFD700; padding-left:10px; }
+.pagination { text-align:center; margin-bottom:30px; }
+.pagination button { padding:8px 15px; margin:5px; border-radius:6px; background:#FFD700; border:none; color:#000; font-weight:bold; cursor:pointer; }
 .status-badge { padding:4px 8px; border-radius:6px; font-weight:bold; }
-.status-pending { background: #ffcc00; color: #000; }
-.status-approved { background: #00cc66; color: #000; }
-.status-rejected { background: #ff4444; color: #fff; }
+.status-pending { background:#ffcc00; color:#000; }
+.status-approved { background:#00cc66; color:#000; }
+.status-rejected { background:#ff4444; color:#fff; }
 .container { max-width:1200px; margin:0 auto; }
-#loginForm { max-width: 350px; margin: 150px auto; padding: 20px; background: #111a33; border-radius: 8px; box-shadow: 0 0 15px #000; color: white; }
-#loginForm h2 { text-align: center; color: #FFD700; margin-bottom: 20px; }
-#loginForm input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: none; font-size: 16px; }
-#loginForm button { width: 100%; padding: 10px; background: #FFD700; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #000; font-size: 16px; }
-#adminPanel { display: none; }
-.logout-btn { background:#ff4444; color:#fff; font-weight:bold; border:none; border-radius:6px; padding:8px 15px; cursor:pointer; }
+#loginForm { max-width:350px; margin:150px auto; padding:20px; background:#111a33; border-radius:8px; box-shadow:0 0 15px #000; color:white; }
+#loginForm h2 { text-align:center; color:#FFD700; margin-bottom:20px; }
+#loginForm input { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:none; font-size:16px; }
+#loginForm button { width:100%; padding:10px; background:#FFD700; border:none; border-radius:6px; font-weight:bold; cursor:pointer; color:#000; font-size:16px; }
+#adminPanel { display:none; }
 </style>
 </head>
 
 <body>
+
 <!-- LOGIN FORM -->
 <div id="loginForm">
   <h2>Login Admin</h2>
@@ -68,14 +65,8 @@ h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; paddin
 <div id="adminPanel">
 <header>
   <div class="logo">ARIPTOTO - Admin Panel</div>
-  <button class="logout-btn" onclick="logout()">Logout</button>
+  <button onclick="logout()" style="background:#ff4444; color:white; padding:6px 12px; border:none; border-radius:6px; cursor:pointer;">Logout</button>
 </header>
-
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Cari UserID / Nama Rekening / No Rekening" />
-  <button onclick="loadAdminData()">🔍 Cari</button>
-  <button onclick="loadAdminData()">🔄 Refresh</button>
-</div>
 
 <div class="container">
 <h2>📋 Users List</h2>
@@ -87,10 +78,6 @@ h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; paddin
   </thead>
   <tbody></tbody>
 </table>
-<div class="pagination">
-  <button onclick="prevPage()">⏮️ Sebelumnya</button>
-  <button onclick="nextPage()">⏭️ Berikutnya</button>
-</div>
 
 <h2>💳 Deposit List</h2>
 <table id="depositsTable">
@@ -115,156 +102,117 @@ h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; paddin
 </div>
 
 <script>
-// ======== ADMIN LOGIN ========
 const ADMIN_ID = 'celo123';
 const ADMIN_PASS = '12345678910';
+let usersData = [];
 
-// Auto login jika sudah tersimpan
-if(localStorage.getItem('adminLogged') === 'true'){
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('adminPanel').style.display = 'block';
-  loadAdminData();
-}
-
-function login() {
+function login(){
   const id = document.getElementById('adminId').value.trim();
   const pass = document.getElementById('adminPass').value;
-  if (id === ADMIN_ID && pass === ADMIN_PASS) {
-    localStorage.setItem('adminLogged','true');
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-    loadAdminData();
-  } else {
-    alert('ID atau password salah!');
-  }
+  if(id===ADMIN_ID && pass===ADMIN_PASS){
+    alert('Login berhasil');
+    document.getElementById('loginForm').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    loadData();
+  } else { alert('ID atau password salah'); }
 }
 
 function logout(){
-  if(confirm('Yakin ingin logout?')){
-    localStorage.removeItem('adminLogged');
-    document.getElementById('adminPanel').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block';
-  }
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('loginForm').style.display='block';
 }
 
-// ======== DATA ADMIN PANEL ========
-let usersData = [], currentPage = 1;
-const usersPerPage = 12;
-
-function fmtDate(ts){
-  if(!ts) return '';
-  try{ if(ts.toDate) return ts.toDate().toLocaleString(); return new Date(ts).toLocaleString(); }
-  catch(e){ return String(ts); }
-}
-
-async function loadAdminData(){
-  const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
-  
-  const usersSnap = await db.collection('users').orderBy('createdAt','desc').get();
-  usersData = [];
-  usersSnap.forEach(u=>{
-    const data = u.data();
-    const match = !searchVal || u.id.toLowerCase().includes(searchVal) ||
-                  (data.namaRekening && data.namaRekening.toLowerCase().includes(searchVal)) ||
-                  (data.rekening && data.rekening.toLowerCase().includes(searchVal));
-    if(match) usersData.push({id: u.id, ...data});
+// --- Load Data ---
+async function loadData(){
+  // Users
+  const usersSnap = await db.collection('users').get();
+  const tbody = document.getElementById('usersTable').querySelector('tbody');
+  tbody.innerHTML = '';
+  usersSnap.forEach(doc=>{
+    const d = doc.data();
+    tbody.innerHTML += `<tr>
+      <td>${doc.id}</td>
+      <td><input class="editable" value="${d.password||''}" onchange="updateField('${doc.id}','password',this.value)"></td>
+      <td><input class="editable" value="${d.namaRekening||''}" onchange="updateField('${doc.id}','namaRekening',this.value)"></td>
+      <td><input class="editable" value="${d.rekening||''}" onchange="updateField('${doc.id}','rekening',this.value)"></td>
+      <td><input class="editable" value="${d.bank||''}" onchange="updateField('${doc.id}','bank',this.value)"></td>
+      <td><input class="editable" value="${d.phone||''}" onchange="updateField('${doc.id}','phone',this.value)"></td>
+      <td><input class="editable" type="number" value="${d.balance||0}" onchange="updateField('${doc.id}','balance',parseInt(this.value)||0)"></td>
+      <td><button class="btn-delete" onclick="deleteUser('${doc.id}')">Hapus</button></td>
+    </tr>`;
   });
-  currentPage=1;
-  renderUsers();
 
   // Deposit
-  const depSnap = await db.collection('deposit').orderBy('createdAt','desc').get();
+  const depSnap = await db.collection('deposits').orderBy('createdAt','desc').get();
   const depBody = document.getElementById('depositsTable').querySelector('tbody');
   depBody.innerHTML = '';
-  depSnap.forEach(dep=>{
-    const d = dep.data();
-    const statusClass = d.status === 'pending' ? 'status-pending' :
-                        d.status === 'approved' ? 'status-approved' :
-                        d.status === 'rejected' ? 'status-rejected' : '';
+  depSnap.forEach(doc=>{
+    const d = doc.data();
+    const statusClass = d.status==='pending'?'status-pending':d.status==='approved'?'status-approved':'status-rejected';
     depBody.innerHTML += `<tr>
-      <td>${d.userId}</td>
+      <td>${d.user}</td>
       <td>${d.amount}</td>
       <td><span class="status-badge ${statusClass}">${d.status}</span></td>
-      <td>${fmtDate(d.createdAt)}</td>
-      <td>
-        ${d.status==='pending'? `<button class="btn-action btn-approve" onclick="approveDeposit('${dep.id}')">Approve</button>
-        <button class="btn-action btn-reject" onclick="rejectDeposit('${dep.id}')">Reject</button>`:''}
-      </td>
+      <td>${d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : ''}</td>
+      <td>${d.status==='pending'?`<button class="btn-approve" onclick="approveDeposit('${doc.id}',${d.amount},'${d.user}')">Approve</button> <button class="btn-reject" onclick="rejectDeposit('${doc.id}')">Reject</button>`:''}</td>
     </tr>`;
   });
 
   // Withdraw
-  const withSnap = await db.collection('withdraw').orderBy('createdAt','desc').get();
-  const withBody = document.getElementById('withdrawsTable').querySelector('tbody');
-  withBody.innerHTML = '';
-  withSnap.forEach(w=>{
-    const wd = w.data();
-    const statusClass = wd.status==='pending' ? 'status-pending' :
-                        wd.status==='approved' ? 'status-approved' :
-                        wd.status==='rejected' ? 'status-rejected' : '';
-    withBody.innerHTML += `<tr>
-      <td>${wd.userId}</td>
-      <td>${wd.amount}</td>
-      <td><span class="status-badge ${statusClass}">${wd.status}</span></td>
-      <td>${fmtDate(wd.createdAt)}</td>
-      <td>
-        ${wd.status==='pending'? `<button class="btn-action btn-approve" onclick="approveWithdraw('${w.id}')">Approve</button>
-        <button class="btn-action btn-reject" onclick="rejectWithdraw('${w.id}')">Reject</button>`:''}
-      </td>
+  const wSnap = await db.collection('withdraws').orderBy('createdAt','desc').get();
+  const wBody = document.getElementById('withdrawsTable').querySelector('tbody');
+  wBody.innerHTML = '';
+  wSnap.forEach(doc=>{
+    const d = doc.data();
+    const statusClass = d.status==='pending'?'status-pending':d.status==='approved'?'status-approved':'status-rejected';
+    wBody.innerHTML += `<tr>
+      <td>${d.user}</td>
+      <td>${d.amount}</td>
+      <td><span class="status-badge ${statusClass}">${d.status}</span></td>
+      <td>${d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : ''}</td>
+      <td>${d.status==='pending'?`<button class="btn-approve" onclick="approveWithdraw('${doc.id}',${d.amount},'${d.user}')">Approve</button> <button class="btn-reject" onclick="rejectWithdraw('${doc.id}')">Reject</button>`:''}</td>
     </tr>`;
   });
 }
 
-function renderUsers(){
-  const tbody = document.getElementById('usersTable').querySelector('tbody');
-  tbody.innerHTML = '';
-  const start=(currentPage-1)*usersPerPage;
-  const end=start+usersPerPage;
-  usersData.slice(start,end).forEach(u=>{
-    tbody.innerHTML += `<tr>
-      <td>${u.id}</td>
-      <td><input class="editable" value="${u.password||''}" onchange="updateUserField('${u.id}','password',this.value)"></td>
-      <td><input class="editable" value="${u.namaRekening||''}" onchange="updateUserField('${u.id}','namaRekening',this.value)"></td>
-      <td><input class="editable" value="${u.rekening||''}" onchange="updateUserField('${u.id}','rekening',this.value)"></td>
-      <td><input class="editable" value="${u.bank||''}" onchange="updateUserField('${u.id}','bank',this.value)"></td>
-      <td><input class="editable" value="${u.phone||''}" onchange="updateUserField('${u.id}','phone',this.value)"></td>
-      <td><input class="editable" type="number" value="${u.balance||0}" onchange="updateUserField('${u.id}','balance',parseInt(this.value)||0)"></td>
-      <td>
-        <button class="btn-action btn-delete" onclick="deleteUser('${u.id}')">Hapus</button>
-        <button class="btn-action btn-approve" onclick="resetPasswordPrompt('${u.id}')">Reset Pass</button>
-      </td>
-    </tr>`;
-  });
+// --- Admin Actions ---
+function updateField(userId,field,value){
+  db.collection('users').doc(userId).update({[field]:value});
 }
 
-async function updateUserField(uid, field, value){
-  try{ await db.collection('users').doc(uid).update({[field]:value}); alert(`Berhasil update ${field}`); }
-  catch(e){ alert('Gagal update: '+e.message); }
+function deleteUser(userId){
+  if(confirm('Hapus user ini?')) db.collection('users').doc(userId).delete().then(loadData);
 }
 
-async function deleteUser(uid){
-  if(confirm(`Hapus user ${uid}?`)){
-    try{ await db.collection('users').doc(uid).delete(); alert('User dihapus'); loadAdminData(); }
-    catch(e){ alert('Gagal hapus: '+e.message); }
-  }
+async function approveDeposit(docId, amount, userId){
+  await db.collection('deposits').doc(docId).update({status:'approved'});
+  const userRef = db.collection('users').doc(userId);
+  const userSnap = await userRef.get();
+  const newBalance = (userSnap.data().balance || 0) + amount;
+  await userRef.update({balance:newBalance});
+  loadData();
 }
 
-async function resetPasswordPrompt(uid){
-  const newPass = prompt(`Password baru untuk ${uid}:`);
-  if(newPass){
-    try{ await db.collection('users').doc(uid).update({password:newPass}); alert('Password direset'); loadAdminData(); }
-    catch(e){ alert('Gagal reset password: '+e.message); }
-  }
+async function rejectDeposit(docId){
+  await db.collection('deposits').doc(docId).update({status:'rejected'});
+  loadData();
 }
 
-async function approveDeposit(depId){ if(confirm('Approve deposit ini?')){ try{ await db.collection('deposit').doc(depId).update({status:'approved'}); alert('Deposit approved'); loadAdminData(); }catch(e){alert('Gagal approve: '+e.message);} } }
-async function rejectDeposit(depId){ if(confirm('Reject deposit ini?')){ try{ await db.collection('deposit').doc(depId).update({status:'rejected'}); alert('Deposit rejected'); loadAdminData(); }catch(e){alert('Gagal reject: '+e.message);} } }
-async function approveWithdraw(withId){ if(confirm('Approve withdraw ini?')){ try{ await db.collection('withdraw').doc(withId).update({status:'approved'}); alert('Withdraw approved'); loadAdminData(); }catch(e){alert('Gagal approve: '+e.message);} } }
-async function rejectWithdraw(withId){ if(confirm('Reject withdraw ini?')){ try{ await db.collection('withdraw').doc(withId).update({status:'rejected'}); alert('Withdraw rejected'); loadAdminData(); }catch(e){alert('Gagal reject: '+e.message);} } }
+async function approveWithdraw(docId, amount, userId){
+  const userRef = db.collection('users').doc(userId);
+  const userSnap = await userRef.get();
+  if((userSnap.data().balance||0) < amount){ alert('Saldo tidak cukup'); return; }
+  await db.collection('withdraws').doc(docId).update({status:'approved'});
+  const newBalance = (userSnap.data().balance || 0) - amount;
+  await userRef.update({balance:newBalance});
+  loadData();
+}
 
-function nextPage(){ if(currentPage*usersPerPage<usersData.length){ currentPage++; renderUsers(); } }
-function prevPage(){ if(currentPage>1){ currentPage--; renderUsers(); } }
-
+async function rejectWithdraw(docId){
+  await db.collection('withdraws').doc(docId).update({status:'rejected'});
+  loadData();
+}
 </script>
+
 </body>
 </html>
