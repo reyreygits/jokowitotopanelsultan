@@ -46,51 +46,16 @@ h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; paddin
 .status-approved { background: #00cc66; color: #000; }
 .status-rejected { background: #ff4444; color: #fff; }
 .container { max-width:1200px; margin:0 auto; }
-
-/* Login form styles */
-#loginForm {
-  max-width: 350px;
-  margin: 150px auto;
-  padding: 20px;
-  background: #111a33;
-  border-radius: 8px;
-  box-shadow: 0 0 15px #000;
-  color: white;
-}
-#loginForm h2 {
-  text-align: center;
-  color: #FFD700;
-  margin-bottom: 20px;
-}
-#loginForm input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  border: none;
-  font-size: 16px;
-}
-#loginForm button {
-  width: 100%;
-  padding: 10px;
-  background: #FFD700;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #000;
-  font-size: 16px;
-}
-
-/* Hide admin panel initially */
-#adminPanel {
-  display: none;
-}
+#loginForm { max-width: 350px; margin: 150px auto; padding: 20px; background: #111a33; border-radius: 8px; box-shadow: 0 0 15px #000; color: white; }
+#loginForm h2 { text-align: center; color: #FFD700; margin-bottom: 20px; }
+#loginForm input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: none; font-size: 16px; }
+#loginForm button { width: 100%; padding: 10px; background: #FFD700; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #000; font-size: 16px; }
+#adminPanel { display: none; }
+.logout-btn { background:#ff4444; color:#fff; font-weight:bold; border:none; border-radius:6px; padding:8px 15px; cursor:pointer; }
 </style>
 </head>
 
 <body>
-
 <!-- LOGIN FORM -->
 <div id="loginForm">
   <h2>Login Admin</h2>
@@ -101,7 +66,10 @@ h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; paddin
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
-<header><div class="logo">ARIPTOTO - Admin Panel</div></header>
+<header>
+  <div class="logo">ARIPTOTO - Admin Panel</div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
 
 <div class="search-bar">
   <input type="text" id="searchInput" placeholder="Cari UserID / Nama Rekening / No Rekening" />
@@ -147,233 +115,155 @@ h2 { margin-left: 20px; margin-top: 30px; border-left: 4px solid #FFD700; paddin
 </div>
 
 <script>
-  // ======== LOGIN FIXED CREDENTIALS ========
-  const ADMIN_ID = 'celo123';
-  const ADMIN_PASS = '12345678910';
+// ======== ADMIN LOGIN ========
+const ADMIN_ID = 'celo123';
+const ADMIN_PASS = '12345678910';
 
-  function login() {
-    const id = document.getElementById('adminId').value.trim();
-    const pass = document.getElementById('adminPass').value;
+// Auto login jika sudah tersimpan
+if(localStorage.getItem('adminLogged') === 'true'){
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadAdminData();
+}
 
-    if (id === ADMIN_ID && pass === ADMIN_PASS) {
-      alert('Login berhasil!');
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('adminPanel').style.display = 'block';
-
-      loadAdminData();
-    } else {
-      alert('ID atau password salah!');
-    }
+function login() {
+  const id = document.getElementById('adminId').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  if (id === ADMIN_ID && pass === ADMIN_PASS) {
+    localStorage.setItem('adminLogged','true');
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadAdminData();
+  } else {
+    alert('ID atau password salah!');
   }
+}
 
-  // ======== DATA & LOGIC ADMIN PANEL (dari kode kamu) ========
-  let usersData = [];
-  let currentPage = 1;
-  const usersPerPage = 12;
-
-  // helper format tanggal
-  function fmtDate(ts){
-    if(!ts) return '';
-    try{
-      if(ts.toDate) return ts.toDate().toLocaleString();
-      return new Date(ts).toLocaleString();
-    }catch(e){ return String(ts); }
+function logout(){
+  if(confirm('Yakin ingin logout?')){
+    localStorage.removeItem('adminLogged');
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
   }
+}
 
-  // Load Data Admin dari Firestore
-  async function loadAdminData(){
-    const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+// ======== DATA ADMIN PANEL ========
+let usersData = [], currentPage = 1;
+const usersPerPage = 12;
 
-    // Ambil data semua users
-    const usersSnap = await db.collection('users').orderBy('createdAt','desc').get();
-    usersData = [];
-    usersSnap.forEach(u=>{
-      const data = u.data();
-      const match = !searchVal ||
-                    u.id.toLowerCase().includes(searchVal) ||
-                    (data.namaRekening && data.namaRekening.toLowerCase().includes(searchVal)) ||
-                    (data.rekening && data.rekening.toLowerCase().includes(searchVal));
-      if(match) usersData.push({id: u.id, ...data});
-    });
+function fmtDate(ts){
+  if(!ts) return '';
+  try{ if(ts.toDate) return ts.toDate().toLocaleString(); return new Date(ts).toLocaleString(); }
+  catch(e){ return String(ts); }
+}
 
-    currentPage = 1;
-    renderUsers();
+async function loadAdminData(){
+  const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+  
+  const usersSnap = await db.collection('users').orderBy('createdAt','desc').get();
+  usersData = [];
+  usersSnap.forEach(u=>{
+    const data = u.data();
+    const match = !searchVal || u.id.toLowerCase().includes(searchVal) ||
+                  (data.namaRekening && data.namaRekening.toLowerCase().includes(searchVal)) ||
+                  (data.rekening && data.rekening.toLowerCase().includes(searchVal));
+    if(match) usersData.push({id: u.id, ...data});
+  });
+  currentPage=1;
+  renderUsers();
 
-    // Load Deposit
-    const depSnap = await db.collection('deposit').orderBy('createdAt','desc').get();
-    const depositsTableBody = document.getElementById('depositsTable').querySelector('tbody');
-    depositsTableBody.innerHTML = '';
-    depSnap.forEach(dep=>{
-      const d = dep.data();
-      const statusClass = d.status === 'pending' ? 'status-pending' :
-                          d.status === 'approved' ? 'status-approved' :
-                          d.status === 'rejected' ? 'status-rejected' : '';
-      depositsTableBody.innerHTML += `<tr>
-        <td>${d.userId}</td>
-        <td>${d.amount}</td>
-        <td><span class="status-badge ${statusClass}">${d.status}</span></td>
-        <td>${fmtDate(d.createdAt)}</td>
-        <td>
-          ${d.status === 'pending' ? `
-          <button class="btn-action btn-approve" onclick="approveDeposit('${dep.id}')">Approve</button>
-          <button class="btn-action btn-reject" onclick="rejectDeposit('${dep.id}')">Reject</button>
-          ` : ''}
-        </td>
-      </tr>`;
-    });
+  // Deposit
+  const depSnap = await db.collection('deposit').orderBy('createdAt','desc').get();
+  const depBody = document.getElementById('depositsTable').querySelector('tbody');
+  depBody.innerHTML = '';
+  depSnap.forEach(dep=>{
+    const d = dep.data();
+    const statusClass = d.status === 'pending' ? 'status-pending' :
+                        d.status === 'approved' ? 'status-approved' :
+                        d.status === 'rejected' ? 'status-rejected' : '';
+    depBody.innerHTML += `<tr>
+      <td>${d.userId}</td>
+      <td>${d.amount}</td>
+      <td><span class="status-badge ${statusClass}">${d.status}</span></td>
+      <td>${fmtDate(d.createdAt)}</td>
+      <td>
+        ${d.status==='pending'? `<button class="btn-action btn-approve" onclick="approveDeposit('${dep.id}')">Approve</button>
+        <button class="btn-action btn-reject" onclick="rejectDeposit('${dep.id}')">Reject</button>`:''}
+      </td>
+    </tr>`;
+  });
 
-    // Load Withdraw
-    const withSnap = await db.collection('withdraw').orderBy('createdAt','desc').get();
-    const withdrawsTableBody = document.getElementById('withdrawsTable').querySelector('tbody');
-    withdrawsTableBody.innerHTML = '';
-    withSnap.forEach(w=>{
-      const wd = w.data();
-      const statusClass = wd.status === 'pending' ? 'status-pending' :
-                          wd.status === 'approved' ? 'status-approved' :
-                          wd.status === 'rejected' ? 'status-rejected' : '';
-      withdrawsTableBody.innerHTML += `<tr>
-        <td>${wd.userId}</td>
-        <td>${wd.amount}</td>
-        <td><span class="status-badge ${statusClass}">${wd.status}</span></td>
-        <td>${fmtDate(wd.createdAt)}</td>
-        <td>
-          ${wd.status === 'pending' ? `
-          <button class="btn-action btn-approve" onclick="approveWithdraw('${w.id}')">Approve</button>
-          <button class="btn-action btn-reject" onclick="rejectWithdraw('${w.id}')">Reject</button>
-          ` : ''}
-        </td>
-      </tr>`;
-    });
+  // Withdraw
+  const withSnap = await db.collection('withdraw').orderBy('createdAt','desc').get();
+  const withBody = document.getElementById('withdrawsTable').querySelector('tbody');
+  withBody.innerHTML = '';
+  withSnap.forEach(w=>{
+    const wd = w.data();
+    const statusClass = wd.status==='pending' ? 'status-pending' :
+                        wd.status==='approved' ? 'status-approved' :
+                        wd.status==='rejected' ? 'status-rejected' : '';
+    withBody.innerHTML += `<tr>
+      <td>${wd.userId}</td>
+      <td>${wd.amount}</td>
+      <td><span class="status-badge ${statusClass}">${wd.status}</span></td>
+      <td>${fmtDate(wd.createdAt)}</td>
+      <td>
+        ${wd.status==='pending'? `<button class="btn-action btn-approve" onclick="approveWithdraw('${w.id}')">Approve</button>
+        <button class="btn-action btn-reject" onclick="rejectWithdraw('${w.id}')">Reject</button>`:''}
+      </td>
+    </tr>`;
+  });
+}
+
+function renderUsers(){
+  const tbody = document.getElementById('usersTable').querySelector('tbody');
+  tbody.innerHTML = '';
+  const start=(currentPage-1)*usersPerPage;
+  const end=start+usersPerPage;
+  usersData.slice(start,end).forEach(u=>{
+    tbody.innerHTML += `<tr>
+      <td>${u.id}</td>
+      <td><input class="editable" value="${u.password||''}" onchange="updateUserField('${u.id}','password',this.value)"></td>
+      <td><input class="editable" value="${u.namaRekening||''}" onchange="updateUserField('${u.id}','namaRekening',this.value)"></td>
+      <td><input class="editable" value="${u.rekening||''}" onchange="updateUserField('${u.id}','rekening',this.value)"></td>
+      <td><input class="editable" value="${u.bank||''}" onchange="updateUserField('${u.id}','bank',this.value)"></td>
+      <td><input class="editable" value="${u.phone||''}" onchange="updateUserField('${u.id}','phone',this.value)"></td>
+      <td><input class="editable" type="number" value="${u.balance||0}" onchange="updateUserField('${u.id}','balance',parseInt(this.value)||0)"></td>
+      <td>
+        <button class="btn-action btn-delete" onclick="deleteUser('${u.id}')">Hapus</button>
+        <button class="btn-action btn-approve" onclick="resetPasswordPrompt('${u.id}')">Reset Pass</button>
+      </td>
+    </tr>`;
+  });
+}
+
+async function updateUserField(uid, field, value){
+  try{ await db.collection('users').doc(uid).update({[field]:value}); alert(`Berhasil update ${field}`); }
+  catch(e){ alert('Gagal update: '+e.message); }
+}
+
+async function deleteUser(uid){
+  if(confirm(`Hapus user ${uid}?`)){
+    try{ await db.collection('users').doc(uid).delete(); alert('User dihapus'); loadAdminData(); }
+    catch(e){ alert('Gagal hapus: '+e.message); }
   }
+}
 
-  // Render users table with pagination
-  function renderUsers(){
-    const tbody = document.getElementById('usersTable').querySelector('tbody');
-    tbody.innerHTML = '';
-
-    const start = (currentPage -1)*usersPerPage;
-    const end = start + usersPerPage;
-    const pageUsers = usersData.slice(start,end);
-
-    pageUsers.forEach(u=>{
-      tbody.innerHTML += `<tr>
-        <td>${u.id}</td>
-        <td><input class="editable" value="${u.password || ''}" onchange="updateUserField('${u.id}','password',this.value)"></td>
-        <td><input class="editable" value="${u.namaRekening || ''}" onchange="updateUserField('${u.id}','namaRekening',this.value)"></td>
-        <td><input class="editable" value="${u.rekening || ''}" onchange="updateUserField('${u.id}','rekening',this.value)"></td>
-        <td><input class="editable" value="${u.bank || ''}" onchange="updateUserField('${u.id}','bank',this.value)"></td>
-        <td><input class="editable" value="${u.phone || ''}" onchange="updateUserField('${u.id}','phone',this.value)"></td>
-        <td><input class="editable" type="number" value="${u.balance || 0}" onchange="updateUserField('${u.id}','balance',parseInt(this.value)||0)"></td>
-        <td>
-          <button class="btn-action btn-delete" onclick="deleteUser('${u.id}')">Hapus</button>
-          <button class="btn-action btn-approve" onclick="resetPasswordPrompt('${u.id}')">Reset Pass</button>
-        </td>
-      </tr>`;
-    });
+async function resetPasswordPrompt(uid){
+  const newPass = prompt(`Password baru untuk ${uid}:`);
+  if(newPass){
+    try{ await db.collection('users').doc(uid).update({password:newPass}); alert('Password direset'); loadAdminData(); }
+    catch(e){ alert('Gagal reset password: '+e.message); }
   }
+}
 
-  // Fungsi update user field
-  async function updateUserField(uid, field, value){
-    try {
-      await db.collection('users').doc(uid).update({[field]: value});
-      alert(`Berhasil update ${field} user ${uid}`);
-    } catch(e) {
-      alert(`Gagal update: ${e.message}`);
-    }
-  }
+async function approveDeposit(depId){ if(confirm('Approve deposit ini?')){ try{ await db.collection('deposit').doc(depId).update({status:'approved'}); alert('Deposit approved'); loadAdminData(); }catch(e){alert('Gagal approve: '+e.message);} } }
+async function rejectDeposit(depId){ if(confirm('Reject deposit ini?')){ try{ await db.collection('deposit').doc(depId).update({status:'rejected'}); alert('Deposit rejected'); loadAdminData(); }catch(e){alert('Gagal reject: '+e.message);} } }
+async function approveWithdraw(withId){ if(confirm('Approve withdraw ini?')){ try{ await db.collection('withdraw').doc(withId).update({status:'approved'}); alert('Withdraw approved'); loadAdminData(); }catch(e){alert('Gagal approve: '+e.message);} } }
+async function rejectWithdraw(withId){ if(confirm('Reject withdraw ini?')){ try{ await db.collection('withdraw').doc(withId).update({status:'rejected'}); alert('Withdraw rejected'); loadAdminData(); }catch(e){alert('Gagal reject: '+e.message);} } }
 
-  // Hapus user
-  async function deleteUser(uid){
-    if(confirm(`Hapus user ${uid}?`)){
-      try {
-        await db.collection('users').doc(uid).delete();
-        alert('User dihapus');
-        loadAdminData();
-      } catch(e) {
-        alert('Gagal hapus user: ' + e.message);
-      }
-    }
-  }
-
-  // Reset password prompt
-  async function resetPasswordPrompt(uid){
-    const newPass = prompt(`Password baru untuk ${uid}:`);
-    if(newPass){
-      try {
-        await db.collection('users').doc(uid).update({password: newPass});
-        alert('Password direset');
-        loadAdminData();
-      } catch(e){
-        alert('Gagal reset password: ' + e.message);
-      }
-    }
-  }
-
-  // Approve deposit
-  async function approveDeposit(depId){
-    if(confirm('Approve deposit ini?')){
-      try {
-        await db.collection('deposit').doc(depId).update({status: 'approved'});
-        alert('Deposit approved');
-        loadAdminData();
-      } catch(e){
-        alert('Gagal approve deposit: ' + e.message);
-      }
-    }
-  }
-
-  // Reject deposit
-  async function rejectDeposit(depId){
-    if(confirm('Reject deposit ini?')){
-      try {
-        await db.collection('deposit').doc(depId).update({status: 'rejected'});
-        alert('Deposit rejected');
-        loadAdminData();
-      } catch(e){
-        alert('Gagal reject deposit: ' + e.message);
-      }
-    }
-  }
-
-  // Approve withdraw
-  async function approveWithdraw(withId){
-    if(confirm('Approve withdraw ini?')){
-      try {
-        await db.collection('withdraw').doc(withId).update({status: 'approved'});
-        alert('Withdraw approved');
-        loadAdminData();
-      } catch(e){
-        alert('Gagal approve withdraw: ' + e.message);
-      }
-    }
-  }
-
-  // Reject withdraw
-  async function rejectWithdraw(withId){
-    if(confirm('Reject withdraw ini?')){
-      try {
-        await db.collection('withdraw').doc(withId).update({status: 'rejected'});
-        alert('Withdraw rejected');
-        loadAdminData();
-      } catch(e){
-        alert('Gagal reject withdraw: ' + e.message);
-      }
-    }
-  }
-
-  // Pagination
-  function nextPage(){
-    if(currentPage*usersPerPage < usersData.length){
-      currentPage++;
-      renderUsers();
-    }
-  }
-  function prevPage(){
-    if(currentPage > 1){
-      currentPage--;
-      renderUsers();
-    }
-  }
+function nextPage(){ if(currentPage*usersPerPage<usersData.length){ currentPage++; renderUsers(); } }
+function prevPage(){ if(currentPage>1){ currentPage--; renderUsers(); } }
 
 </script>
 </body>
