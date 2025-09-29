@@ -21,12 +21,11 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-let adminUser = null;
 </script>
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#0a0f1c; color:white; }
-header { background:#111a33; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
+header { background:#111a33; padding:10px 20px; text-align:center; }
 header h1 { color:#FFD700; }
 table { width:100%; border-collapse:collapse; margin-top:20px; }
 th, td { padding:8px; border:1px solid #FFD700; text-align:center; color:#FFD700; }
@@ -39,17 +38,9 @@ button { padding:6px 10px; border:none; border-radius:4px; cursor:pointer; margi
 <body>
 <header>
 <h1>Admin Panel - TOKPED4D</h1>
-<button onclick="logout()">Logout</button>
 </header>
 
-<div id="loginBox" style="padding:20px;">
-<h2>Login Admin</h2>
-<input type="text" id="adminUserInput" placeholder="Username Admin" />
-<input type="password" id="adminPassInput" placeholder="Password" />
-<button onclick="loginAdmin()">Login</button>
-</div>
-
-<div id="adminArea" style="display:none; padding:20px;">
+<div style="padding:20px;">
 <h2>Pending Deposit & Withdraw</h2>
 <table>
 <thead>
@@ -68,24 +59,6 @@ button { padding:6px 10px; border:none; border-radius:4px; cursor:pointer; margi
 </div>
 
 <script>
-// --- Admin Login ---
-function loginAdmin(){
-  const u = document.getElementById("adminUserInput").value;
-  const p = document.getElementById("adminPassInput").value;
-  // Simple hardcoded admin login, bisa diganti dengan Firestore admin auth
-  if(u==="admin" && p==="admin123"){
-    adminUser = {user:u};
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("adminArea").style.display="block";
-    loadPending();
-  } else { alert("Login Admin gagal!"); }
-}
-function logout(){
-  adminUser = null;
-  document.getElementById("loginBox").style.display="block";
-  document.getElementById("adminArea").style.display="none";
-}
-
 // --- Load Pending History ---
 function loadPending(){
   db.collection("history").where("status","==","Pending").orderBy("date","desc").get().then(snap=>{
@@ -132,6 +105,9 @@ function reject(docId){
   db.collection("history").doc(docId).update({status:"Rejected"})
     .then(()=>{ alert("Transaction rejected"); loadPending(); });
 }
+
+// Load data saat halaman dibuka
+window.onload = loadPending;
 </script>
 </body>
 </html>
