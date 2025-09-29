@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Panel JNT-4D</title>
+<title>Admin Panel - JNT4D</title>
 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
@@ -19,169 +20,144 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-let isAdmin=false;
-</script>
 
-<style>
-body { margin:0; font-family:Arial,sans-serif; background:#0a0f1c; color:white; }
-header { background:#111a33; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
-header h1 { color:#FFD700; font-size:20px; margin:0; }
-.form-box { background:#111a33; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.6); max-width:800px; margin:20px auto; }
-.form-box input, .form-box button { width:100%; padding:10px; margin:8px 0; border:none; border-radius:6px; font-size:14px; }
-button { cursor:pointer; font-weight:bold; }
-.card { background:#111a33; padding:15px; border-radius:8px; border:2px solid #FFD700; margin-bottom:10px; }
-.card p, .card label { color:#FFD700; margin:4px 0; }
-button.approve { background:#00cc66; color:#000; margin-right:5px; }
-button.reject { background:#ff4444; color:#000; margin-right:5px; }
-button.save { background:#ffcc00; color:#000; margin-top:5px; }
-button.back { background:#888; color:white; margin-top:10px; }
-input.edit { width:90%; margin:2px 0; padding:4px; border-radius:4px; border:none; }
-</style>
-</head>
+let isAdmin = false;
 
-<body>
-<!-- ===== Admin Login Page ===== -->
-<div id="loginPage" class="page">
-  <div class="form-box">
-    <h2>Admin Login</h2>
-    <input type="text" id="adminUser" placeholder="Username" />
-    <input type="password" id="adminPass" placeholder="Password" />
-    <button onclick="loginAdmin()">Login</button>
-  </div>
-</div>
+// Admin credentials
+const adminCredentials = { username:"admin", password:"Admin123" };
 
-<!-- ===== Admin Panel ===== -->
-<div id="adminPage" class="page" style="display:none;">
-<header><h1>💼 Admin Panel JNT-4D</h1></header>
-
-<div class="form-box">
-<h2>Daftar User</h2>
-<div id="userList" style="max-height:300px; overflow-y:auto;"></div>
-</div>
-
-<div class="form-box">
-<h2>Daftar Deposit / Withdraw</h2>
-<div id="txList" style="max-height:300px; overflow-y:auto;"></div>
-</div>
-
-<button class="back" onclick="logoutAdmin()">⬅️ Logout</button>
-</div>
-
-<script>
-// --- Admin Login ---
+// --- Login Admin ---
 function loginAdmin(){
-  const u=document.getElementById("adminUser").value;
-  const p=document.getElementById("adminPass").value;
-  if(u==="admin" && p==="admin123"){ 
-    isAdmin=true; showAdminPage();
+  const u = document.getElementById("adminUser").value;
+  const p = document.getElementById("adminPass").value;
+  if(u === adminCredentials.username && p === adminCredentials.password){
+    isAdmin = true;
+    showAdminPage();
   } else {
-    alert("Login Admin gagal!");
+    alert("Login Admin gagal! Username atau Password salah.");
   }
 }
 
 // --- Show Admin Page ---
 function showAdminPage(){
-  document.getElementById("loginPage").style.display="none";
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
   document.getElementById("adminPage").style.display="block";
-  loadUsers();
-  loadTransactions();
+  loadPlayers();
+  loadDeposits();
 }
 
-// --- Logout Admin ---
-function logoutAdmin(){
-  isAdmin=false;
-  document.getElementById("loginPage").style.display="block";
-  document.getElementById("adminPage").style.display="none";
-}
-
-// --- Load Users ---
-function loadUsers(){
-  const div=document.getElementById("userList");
-  div.innerHTML="Loading...";
+// --- Load Players ---
+function loadPlayers(){
+  const list = document.getElementById("playerList");
+  list.innerHTML="";
   db.collection("users").get().then(snap=>{
-    div.innerHTML="";
     snap.forEach(doc=>{
-      const d=doc.data();
-      const card=document.createElement("div");
-      card.className="card";
-      card.innerHTML=`
-        <p><strong>User:</strong> ${doc.id}</p>
-        <label>Nama Rekening:</label>
-        <input class="edit" id="nama-${doc.id}" value="${d.nama}" />
-        <label>No. Rekening:</label>
-        <input class="edit" id="rek-${doc.id}" value="${d.rekening}" />
-        <label>Bank/E-Wallet:</label>
-        <input class="edit" id="bank-${doc.id}" value="${d.bank}" />
-        <label>Saldo (Rp):</label>
-        <input class="edit" id="bal-${doc.id}" type="number" value="${d.balance}" />
-        <button class="save" onclick="saveUser('${doc.id}')">Save</button>
+      const d = doc.data();
+      const div = document.createElement("div");
+      div.style.border="1px solid #FFD700";
+      div.style.margin="5px";
+      div.style.padding="5px";
+      div.innerHTML=`
+        <b>${doc.id}</b><br>
+        Password: <input value="${d.password}" id="pw_${doc.id}" style="width:80px;">
+        | Bank: <input value="${d.bank}" id="bank_${doc.id}" style="width:100px;">
+        | Rekening: <input value="${d.rekening}" id="rek_${doc.id}" style="width:100px;">
+        | Nama: <input value="${d.nama}" id="nama_${doc.id}" style="width:100px;">
+        | HP: <input value="${d.phone}" id="phone_${doc.id}" style="width:100px;">
+        <button onclick="updatePlayer('${doc.id}')">Update</button>
       `;
-      div.appendChild(card);
+      list.appendChild(div);
     });
   });
 }
 
-// --- Save User Data ---
-function saveUser(id){
-  const n=document.getElementById(`nama-${id}`).value;
-  const r=document.getElementById(`rek-${id}`).value;
-  const b=document.getElementById(`bank-${id}`).value;
-  const bal=parseInt(document.getElementById(`bal-${id}`).value) || 0;
-  db.collection("users").doc(id).update({nama:n,rekening:r,bank:b,balance:bal})
-  .then(()=>{alert("Data user berhasil diupdate!"); loadUsers();});
+// --- Update Player ---
+function updatePlayer(uid){
+  const pw = document.getElementById(`pw_${uid}`).value;
+  const bank = document.getElementById(`bank_${uid}`).value;
+  const rek = document.getElementById(`rek_${uid}`).value;
+  const nama = document.getElementById(`nama_${uid}`).value;
+  const phone = document.getElementById(`phone_${uid}`).value;
+  db.collection("users").doc(uid).update({password:pw, bank:bank, rekening:rek, nama:nama, phone:phone})
+  .then(()=>{ alert(`Data ${uid} berhasil diupdate`); });
 }
 
-// --- Load Transactions ---
-function loadTransactions(){
-  const div=document.getElementById("txList");
-  div.innerHTML="Loading...";
-  db.collection("history").orderBy("date","desc").get().then(snap=>{
-    div.innerHTML="";
+// --- Load Deposit History ---
+function loadDeposits(){
+  const list = document.getElementById("depositList");
+  list.innerHTML="";
+  db.collection("history").where("type","==","Deposit").where("status","==","Pending").get().then(snap=>{
     snap.forEach(doc=>{
-      const d=doc.data();
-      if(d.type!=="Deposit" && d.type!=="Withdraw") return;
-      const card=document.createElement("div");
-      card.className="card";
-      card.innerHTML=`
-        <p><strong>User:</strong> ${d.user}</p>
-        <p><strong>Tipe:</strong> ${d.type}</p>
-        <p><strong>Nominal:</strong> Rp ${d.amount}</p>
-        <p><strong>Status:</strong> <span id="status-${doc.id}">${d.status}</span></p>
-        <button class="approve" onclick="approveTx('${doc.id}')">Approve</button>
-        <button class="reject" onclick="rejectTx('${doc.id}')">Reject</button>
-      `;
-      div.appendChild(card);
+      const d = doc.data();
+      const div = document.createElement("div");
+      div.style.border="1px solid #00cc66";
+      div.style.margin="5px";
+      div.style.padding="5px";
+      div.innerHTML=`<b>${d.user}</b> - Rp ${d.amount} | 
+        <button onclick="approveDeposit('${doc.id}',${d.amount},'${d.user}')">Approve</button>
+        <button onclick="rejectDeposit('${doc.id}')">Reject</button>`;
+      list.appendChild(div);
     });
   });
 }
 
-// --- Approve Transaction ---
-function approveTx(id){
-  const txRef=db.collection("history").doc(id);
-  txRef.get().then(doc=>{
-    if(!doc.exists){alert("Data tidak ditemukan"); return;}
-    const d=doc.data();
-    txRef.update({status:"Approved"}).then(()=>{
-      document.getElementById(`status-${id}`).innerText="Approved";
-      const userRef=db.collection("users").doc(d.user);
-      userRef.get().then(uDoc=>{
-        if(!uDoc.exists){alert("User tidak ditemukan"); return;}
-        let balance=uDoc.data().balance || 0;
-        if(d.type==="Deposit") balance+=d.amount;
-        if(d.type==="Withdraw") balance-=d.amount;
-        userRef.update({balance}).then(()=>loadUsers());
+// --- Approve Deposit ---
+function approveDeposit(docId,amount,uid){
+  // Update history
+  db.collection("history").doc(docId).update({status:"Approved"}).then(()=>{
+    // Update user balance
+    db.collection("users").doc(uid).get().then(doc=>{
+      const userData = doc.data();
+      const newBalance = (userData.balance || 0) + amount;
+      db.collection("users").doc(uid).update({balance:newBalance}).then(()=>{
+        alert(`Deposit Rp ${amount} dari ${uid} diapprove`);
+        loadDeposits();
       });
     });
   });
 }
 
-// --- Reject Transaction ---
-function rejectTx(id){
-  const txRef=db.collection("history").doc(id);
-  txRef.update({status:"Rejected"}).then(()=>{
-    document.getElementById(`status-${id}`).innerText="Rejected";
+// --- Reject Deposit ---
+function rejectDeposit(docId){
+  db.collection("history").doc(docId).update({status:"Rejected"}).then(()=>{
+    alert("Deposit ditolak");
+    loadDeposits();
   });
 }
+
 </script>
+
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#0a0f1c;color:white;}
+.page{display:none;padding:15px;max-width:900px;margin:auto;}
+.active{display:block;}
+input,button{padding:5px;margin:2px;border-radius:4px;border:none;}
+button{cursor:pointer;}
+header{background:#111a33;padding:10px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<!-- Admin Login -->
+<div id="adminLogin" class="page active">
+<header><h2>Login Admin</h2></header>
+<input type="text" id="adminUser" placeholder="Username"><br>
+<input type="password" id="adminPass" placeholder="Password"><br>
+<button onclick="loginAdmin()">Login</button>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPage" class="page">
+<header><h2>🛠 Admin Panel</h2></header>
+<h3>Pemain Terdaftar</h3>
+<div id="playerList" style="max-height:300px;overflow:auto;border:1px solid #444;padding:5px;"></div>
+
+<h3>Deposit Pending</h3>
+<div id="depositList" style="max-height:300px;overflow:auto;border:1px solid #444;padding:5px;"></div>
+
+<br>
+<button onclick="location.reload()">Logout</button>
+</div>
+
 </body>
 </html>
