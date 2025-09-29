@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Panel - JNT4D</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin TOKPED4D</title>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -20,144 +21,117 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-let isAdmin = false;
-
-// Admin credentials
-const adminCredentials = { username:"admin", password:"Admin123" };
-
-// --- Login Admin ---
-function loginAdmin(){
-  const u = document.getElementById("adminUser").value;
-  const p = document.getElementById("adminPass").value;
-  if(u === adminCredentials.username && p === adminCredentials.password){
-    isAdmin = true;
-    showAdminPage();
-  } else {
-    alert("Login Admin gagal! Username atau Password salah.");
-  }
-}
-
-// --- Show Admin Page ---
-function showAdminPage(){
-  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-  document.getElementById("adminPage").style.display="block";
-  loadPlayers();
-  loadDeposits();
-}
-
-// --- Load Players ---
-function loadPlayers(){
-  const list = document.getElementById("playerList");
-  list.innerHTML="";
-  db.collection("users").get().then(snap=>{
-    snap.forEach(doc=>{
-      const d = doc.data();
-      const div = document.createElement("div");
-      div.style.border="1px solid #FFD700";
-      div.style.margin="5px";
-      div.style.padding="5px";
-      div.innerHTML=`
-        <b>${doc.id}</b><br>
-        Password: <input value="${d.password}" id="pw_${doc.id}" style="width:80px;">
-        | Bank: <input value="${d.bank}" id="bank_${doc.id}" style="width:100px;">
-        | Rekening: <input value="${d.rekening}" id="rek_${doc.id}" style="width:100px;">
-        | Nama: <input value="${d.nama}" id="nama_${doc.id}" style="width:100px;">
-        | HP: <input value="${d.phone}" id="phone_${doc.id}" style="width:100px;">
-        <button onclick="updatePlayer('${doc.id}')">Update</button>
-      `;
-      list.appendChild(div);
-    });
-  });
-}
-
-// --- Update Player ---
-function updatePlayer(uid){
-  const pw = document.getElementById(`pw_${uid}`).value;
-  const bank = document.getElementById(`bank_${uid}`).value;
-  const rek = document.getElementById(`rek_${uid}`).value;
-  const nama = document.getElementById(`nama_${uid}`).value;
-  const phone = document.getElementById(`phone_${uid}`).value;
-  db.collection("users").doc(uid).update({password:pw, bank:bank, rekening:rek, nama:nama, phone:phone})
-  .then(()=>{ alert(`Data ${uid} berhasil diupdate`); });
-}
-
-// --- Load Deposit History ---
-function loadDeposits(){
-  const list = document.getElementById("depositList");
-  list.innerHTML="";
-  db.collection("history").where("type","==","Deposit").where("status","==","Pending").get().then(snap=>{
-    snap.forEach(doc=>{
-      const d = doc.data();
-      const div = document.createElement("div");
-      div.style.border="1px solid #00cc66";
-      div.style.margin="5px";
-      div.style.padding="5px";
-      div.innerHTML=`<b>${d.user}</b> - Rp ${d.amount} | 
-        <button onclick="approveDeposit('${doc.id}',${d.amount},'${d.user}')">Approve</button>
-        <button onclick="rejectDeposit('${doc.id}')">Reject</button>`;
-      list.appendChild(div);
-    });
-  });
-}
-
-// --- Approve Deposit ---
-function approveDeposit(docId,amount,uid){
-  // Update history
-  db.collection("history").doc(docId).update({status:"Approved"}).then(()=>{
-    // Update user balance
-    db.collection("users").doc(uid).get().then(doc=>{
-      const userData = doc.data();
-      const newBalance = (userData.balance || 0) + amount;
-      db.collection("users").doc(uid).update({balance:newBalance}).then(()=>{
-        alert(`Deposit Rp ${amount} dari ${uid} diapprove`);
-        loadDeposits();
-      });
-    });
-  });
-}
-
-// --- Reject Deposit ---
-function rejectDeposit(docId){
-  db.collection("history").doc(docId).update({status:"Rejected"}).then(()=>{
-    alert("Deposit ditolak");
-    loadDeposits();
-  });
-}
-
+let adminUser = null;
 </script>
 
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#0a0f1c;color:white;}
-.page{display:none;padding:15px;max-width:900px;margin:auto;}
-.active{display:block;}
-input,button{padding:5px;margin:2px;border-radius:4px;border:none;}
-button{cursor:pointer;}
-header{background:#111a33;padding:10px;margin-bottom:10px;}
+body { margin:0; font-family:Arial,sans-serif; background:#0a0f1c; color:white; }
+header { background:#111a33; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { color:#FFD700; }
+table { width:100%; border-collapse:collapse; margin-top:20px; }
+th, td { padding:8px; border:1px solid #FFD700; text-align:center; color:#FFD700; }
+button { padding:6px 10px; border:none; border-radius:4px; cursor:pointer; margin:2px; font-weight:bold; }
+.btn-approve { background:#00cc66; color:white; }
+.btn-reject { background:#ff4444; color:white; }
 </style>
 </head>
-<body>
 
-<!-- Admin Login -->
-<div id="adminLogin" class="page active">
-<header><h2>Login Admin</h2></header>
-<input type="text" id="adminUser" placeholder="Username"><br>
-<input type="password" id="adminPass" placeholder="Password"><br>
+<body>
+<header>
+<h1>Admin Panel - TOKPED4D</h1>
+<button onclick="logout()">Logout</button>
+</header>
+
+<div id="loginBox" style="padding:20px;">
+<h2>Login Admin</h2>
+<input type="text" id="adminUserInput" placeholder="Username Admin" />
+<input type="password" id="adminPassInput" placeholder="Password" />
 <button onclick="loginAdmin()">Login</button>
 </div>
 
-<!-- Admin Panel -->
-<div id="adminPage" class="page">
-<header><h2>🛠 Admin Panel</h2></header>
-<h3>Pemain Terdaftar</h3>
-<div id="playerList" style="max-height:300px;overflow:auto;border:1px solid #444;padding:5px;"></div>
-
-<h3>Deposit Pending</h3>
-<div id="depositList" style="max-height:300px;overflow:auto;border:1px solid #444;padding:5px;"></div>
-
-<br>
-<button onclick="location.reload()">Logout</button>
+<div id="adminArea" style="display:none; padding:20px;">
+<h2>Pending Deposit & Withdraw</h2>
+<table>
+<thead>
+<tr>
+<th>User</th>
+<th>Type</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="historyTable">
+<!-- Data akan muncul di sini -->
+</tbody>
+</table>
 </div>
 
+<script>
+// --- Admin Login ---
+function loginAdmin(){
+  const u = document.getElementById("adminUserInput").value;
+  const p = document.getElementById("adminPassInput").value;
+  // Simple hardcoded admin login, bisa diganti dengan Firestore admin auth
+  if(u==="admin" && p==="admin123"){
+    adminUser = {user:u};
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("adminArea").style.display="block";
+    loadPending();
+  } else { alert("Login Admin gagal!"); }
+}
+function logout(){
+  adminUser = null;
+  document.getElementById("loginBox").style.display="block";
+  document.getElementById("adminArea").style.display="none";
+}
+
+// --- Load Pending History ---
+function loadPending(){
+  db.collection("history").where("status","==","Pending").orderBy("date","desc").get().then(snap=>{
+    const tbody = document.getElementById("historyTable");
+    tbody.innerHTML="";
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${d.user}</td>
+        <td>${d.type}</td>
+        <td>Rp ${d.amount}</td>
+        <td>${d.status}</td>
+        <td>
+          <button class="btn-approve" onclick="approve('${doc.id}','${d.user}','${d.type}',${d.amount})">Approve</button>
+          <button class="btn-reject" onclick="reject('${doc.id}')">Reject</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+// --- Approve Transaction ---
+function approve(docId,userId,type,amount){
+  const userRef = db.collection("users").doc(userId);
+  db.runTransaction(async (transaction)=>{
+    const userDoc = await transaction.get(userRef);
+    if(!userDoc.exists) throw "User tidak ditemukan";
+    let newBalance = userDoc.data().balance;
+    if(type==="Deposit") newBalance += amount;
+    if(type==="Withdraw") {
+      if(newBalance<amount){ alert("Saldo user tidak cukup!"); return; }
+      newBalance -= amount;
+    }
+    transaction.update(userRef,{balance:newBalance});
+    transaction.update(db.collection("history").doc(docId),{status:"Approved"});
+  }).then(()=>{ alert("Transaction approved!"); loadPending(); })
+    .catch(err=>{ console.error(err); alert("Error approve"); });
+}
+
+// --- Reject Transaction ---
+function reject(docId){
+  db.collection("history").doc(docId).update({status:"Rejected"})
+    .then(()=>{ alert("Transaction rejected"); loadPending(); });
+}
+</script>
 </body>
 </html>
